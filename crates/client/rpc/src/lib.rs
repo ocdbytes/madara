@@ -314,12 +314,19 @@ where
     }
 
     async fn declare_v0_contract(&self, params: mc_rpc_core::CustomDeclareV0Transaction) -> RpcResult<DeclareV0Result> {
+        log::info!("params : {:?}", params);
+        
         let txn_hash: TransactionHash = self._get_txn_hash(params.declare_transaction.clone());
 
+        log::info!("txn_hash : {:?}", txn_hash);
+        
         let program_decoded = Program::decode_all(&mut params.program_vec.as_slice()).map_err(|e| {
             log::debug!("error: {:?}", e);
+            log::info!("error : {:?}", e);
             StarknetRpcApiError::InternalServerError
         })?;
+        
+        log::info!(">>>> program decoded : {:?}", program_decoded);
 
         let class_info = ClassInfo::new(
             &blockifier::execution::contract_class::ContractClass::V0(ContractClassV0(Arc::from(
@@ -333,6 +340,8 @@ where
             StarknetRpcApiError::InternalServerError
         })?;
 
+        log::info!(">>>>> class_info : {:?}", class_info);
+
         let declare_transaction = DeclareTransaction::new(
             starknet_api::transaction::DeclareTransaction::V0(params.declare_transaction),
             txn_hash,
@@ -343,6 +352,8 @@ where
             StarknetRpcApiError::InternalServerError
         })?;
 
+        log::info!(">>>>> declare_transaction : {:?}", declare_transaction);
+        
         let (txn_hash, class_hash) = self.declare_tx_common(declare_transaction).await?;
 
         Ok(DeclareV0Result { txn_hash, class_hash })
