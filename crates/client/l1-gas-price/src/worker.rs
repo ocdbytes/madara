@@ -94,11 +94,11 @@ async fn update_gas_price(
     let mut gas_price = gas_price.lock().await;
     gas_price.eth_l1_gas_price =
         NonZeroU128::new(eth_gas_price).ok_or(format_err!("Failed to convert `eth_gas_price` to NonZeroU128"))?;
-    gas_price.eth_l1_data_gas_price = NonZeroU128::new(avg_blob_base_fee)
+    gas_price.eth_l1_data_gas_price = NonZeroU128::new(avg_blob_base_fee + 1)
         .ok_or(format_err!("Failed to convert `eth_l1_data_gas_price` to NonZeroU128"))?;
     gas_price.strk_l1_gas_price = NonZeroU128::new(eth_gas_price.saturating_mul(eth_strk_price))
         .ok_or(format_err!("Failed to convert `strk_l1_gas_price` to NonZeroU128"))?;
-    gas_price.strk_l1_data_gas_price = NonZeroU128::new(avg_blob_base_fee.saturating_mul(eth_strk_price))
+    gas_price.strk_l1_data_gas_price = NonZeroU128::new((avg_blob_base_fee + 1).saturating_mul(eth_strk_price))
         .ok_or(format_err!("Failed to convert `strk_l1_data_gas_price` to NonZeroU128"))?;
     gas_price.last_update_timestamp = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH)?.as_millis();
     // explicitly dropping gas price here to avoid long waits when fetching the value
